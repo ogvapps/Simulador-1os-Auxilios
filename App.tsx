@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
-import { auth, db, appId } from './services/firebaseService';
+import { auth, db, appId, isMock } from './services/firebaseService';
 import { Header } from './components/Common';
 import { UserEntryForm, AdminPinModal } from './components/Auth';
 import { MainDashboard } from './components/Dashboard';
@@ -23,6 +23,15 @@ function App() {
   const [isOfflineMode, setIsOfflineMode] = useState(false);
 
   useEffect(() => {
+    if (isMock) {
+      // If using mock config, skip Firebase Auth to prevent "api-key-not-valid" errors
+      console.warn("Using mock Firebase config. Switching to Offline Mode.");
+      setIsOfflineMode(true);
+      setUserId('offline-user');
+      setLoading(false);
+      return;
+    }
+
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUserId(user.uid);
@@ -47,7 +56,7 @@ function App() {
         }
       } else {
         signInAnonymously(auth).catch((error) => {
-            console.error("Firebase Auth failed. Switching to Offline Mode.", error);
+            console.warn("Firebase Auth failed. Switching to Offline Mode.", error.message);
             // Enable offline mode so the app is still usable for demonstration
             setIsOfflineMode(true);
             setUserId('offline-user');
@@ -162,7 +171,7 @@ function App() {
         {isOfflineMode && (
             <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
                 <p className="font-bold">Modo Demostración</p>
-                <p>La conexión con la base de datos no está disponible (API Key inválida). El progreso no se guardará permanentemente.</p>
+                <p>La conexión con la base de datos no está disponible. El progreso no se guardará permanentemente.</p>
             </div>
         )}
         {renderContent()}
