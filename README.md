@@ -1,4 +1,4 @@
-# Desafío Socorrista 🚑
+# Simulador-1os-Auxilios 🚑
 
 Aplicación educativa interactiva de primeros auxilios con seguimiento de progreso y gamificación.
 
