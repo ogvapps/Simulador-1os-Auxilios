@@ -1,79 +1,99 @@
 # Desafío Socorrista 🚑
 
-Aplicación educativa interactiva de primeros auxilios construida con React, Tailwind CSS y Firebase.
+Aplicación educativa interactiva de primeros auxilios con seguimiento de progreso y gamificación.
 
-## 🚀 Configuración Inicial
+## 🚀 Configuración Rápida
 
-### 1. Clonar y preparar
-Asegúrate de tener Node.js instalado.
-
+### 1. Instalar dependencias
 ```bash
 npm install
 ```
 
 ### 2. Configurar Firebase
-1. Crea un proyecto en [Firebase Console](https://console.firebase.google.com/).
-2. Habilita **Authentication** (Anónimo) y **Firestore**.
-3. Crea un archivo `.env` en la raíz del proyecto (puedes copiar `.env.example`).
-4. Rellena las variables con la configuración de tu proyecto web de Firebase:
+1. Ve a [Firebase Console](https://console.firebase.google.com/) y crea un proyecto.
+2. Habilita **Authentication** (Proveedor Anónimo) y **Firestore Database**.
+3. Crea un archivo `.env` en la raíz (basado en `.env.example`):
+   ```bash
+   cp .env.example .env
+   ```
+4. Pega tus credenciales en el archivo `.env`.
 
-```env
-VITE_FIREBASE_API_KEY=AIzaSy...
-VITE_FIREBASE_AUTH_DOMAIN=tu-proyecto.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=tu-proyecto
-# ... resto de variables
-```
-
-## 🛠 Desarrollo Local
-
-Para correr la aplicación localmente:
-
+### 3. Ejecutar localmente
 ```bash
 npm run dev
-# o
-npm start
 ```
 
-La aplicación detectará automáticamente las variables del archivo `.env`. Si no se detectan, entrará en "Modo Demostración" (Offline).
+---
 
 ## 🌐 Despliegue en GitHub Pages
 
-La aplicación está diseñada para funcionar en GitHub Pages. Sigue estos pasos:
+Esta aplicación está lista para desplegarse en GitHub Pages usando GitHub Actions.
 
-### Opción A: Build Automático (Recomendado)
+### Paso 1: Subir el código
+Sube tu código a un repositorio de GitHub.
 
-1. Sube tu código a GitHub.
-2. Ve a **Settings** > **Secrets and variables** > **Actions**.
-3. Crea "New repository secret" para cada variable de entorno de Firebase:
+### Paso 2: Configurar Secretos
+Para que la aplicación funcione en producción sin exponer tus claves en el código público:
+
+1. Ve a tu repositorio en GitHub.
+2. Entra en **Settings** > **Secrets and variables** > **Actions**.
+3. Haz clic en **New repository secret** y añade las siguientes variables (copiando los valores de tu `.env`):
    - `VITE_FIREBASE_API_KEY`
    - `VITE_FIREBASE_AUTH_DOMAIN`
-   - etc.
-4. Configura un GitHub Action para construir y desplegar.
+   - `VITE_FIREBASE_PROJECT_ID`
+   - `VITE_FIREBASE_STORAGE_BUCKET`
+   - `VITE_FIREBASE_MESSAGING_SENDER_ID`
+   - `VITE_FIREBASE_APP_ID`
 
-### Opción B: Build Manual
+### Paso 3: Configurar GitHub Actions
+Crea un archivo en `.github/workflows/deploy.yml` con el siguiente contenido (ajustando si usas `npm` o `yarn`):
 
-1. Asegúrate de que tu archivo `.env` tiene los datos de producción.
-2. Ejecuta el build:
-   ```bash
-   npm run build
-   ```
-3. Sube el contenido de la carpeta `dist` (o `build`) a la rama `gh-pages`.
+```yaml
+name: Deploy to GitHub Pages
 
-### Opción C: Configuración en Runtime (Sin Build)
+on:
+  push:
+    branches: [ main ]
 
-Si no usas un proceso de build y subes los archivos tal cual, puedes inyectar la configuración globalmente en `index.html` antes de cargar la app:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Install Dependencies
+        run: npm ci
 
-```html
-<script>
-  window.__firebase_config = {
-    apiKey: "...",
-    authDomain: "...",
-    projectId: "..."
-  };
-</script>
+      - name: Build
+        run: npm run build
+        env:
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+          VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
+          VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          # ... añade el resto de secrets aquí
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
 ```
 
-## 📝 Notas
+### Opción Alternativa: Configuración Externa (Runtime)
+Si prefieres no recompilar la aplicación para cambiar la configuración, puedes crear un archivo `config.js` en la carpeta `public/` e importarlo en `index.html` antes del script principal:
 
-- Si la base de datos no está conectada, la app funcionará en modo "Solo lectura/Local" y no guardará progreso persistente.
-- Asegúrate de configurar las reglas de seguridad de Firestore adecuadamente para producción.
+```javascript
+// public/config.js
+window.__firebase_config = {
+  apiKey: "...",
+  authDomain: "...",
+  projectId: "..."
+};
+```
+
+## ⚠️ Notas Importantes
+- Si no configuras las variables, la app entrará automáticamente en **Modo Mock (Demostración)**. No se guardarán datos, pero la interfaz será totalmente funcional.
+- Asegúrate de configurar las **Reglas de Firestore** para permitir lectura/escritura a usuarios autenticados.
