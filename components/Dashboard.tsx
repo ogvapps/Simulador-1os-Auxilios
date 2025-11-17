@@ -2,6 +2,7 @@ import React, { useMemo, memo } from 'react';
 import { HeartPulse, Users, CheckCircle2, Lock, AlertTriangle, XCircle } from 'lucide-react';
 import { Module, ProgressData, UserData, Badge } from '../types';
 import { iconComponents, learningModuleIds, totalLearningModules, badgeData, totalExamQuestions } from '../constants';
+import AdminPanel from './AdminPanel';
 
 export const ModuleCard = memo(function ModuleCard({ module, progress, onModuleClick }: { module: Module, progress: ProgressData, onModuleClick: () => void }) {
   const isLearning = module.type === 'module';
@@ -87,6 +88,7 @@ export const MainDashboard = memo(function MainDashboard({
           <h2 className="text-xl font-bold mb-2">🔐 Modo Administrador Activado</h2>
           <p>Vista con acceso completo a todas las funcionalidades.</p>
         </div>
+              <AdminPanel />
       )}
           <div>
             <h2 className="text-2xl font-bold text-gray-900">¡Hola, {userData.name}!</h2>
