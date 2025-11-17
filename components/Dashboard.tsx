@@ -83,12 +83,13 @@ export const MainDashboard = memo(function MainDashboard({
       <div className="bg-white p-6 rounded-lg shadow-lg mb-6 border-l-4 border-red-600">
         <div className="flex items-center mb-3">
           <HeartPulse size={36} className="text-red-600 mr-4" />
-                {isAdmin && (
+                {isAdmin &&  <>
         <div className="bg-purple-600 text-white p-4 rounded-lg mb-6 shadow-lg">
           <h2 className="text-xl font-bold mb-2">🔐 Modo Administrador Activado</h2>
           <p>Vista con acceso completo a todas las funcionalidades.</p>
         </div>
-              <AdminPanel />
+                          <AdminPanel />
+                        </>
       )}
           <div>
             <h2 className="text-2xl font-bold text-gray-900">¡Hola, {userData.name}!</h2>
