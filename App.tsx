@@ -160,7 +160,7 @@ function App() {
         );
       case 'home':
       default:
-        return <MainDashboard userData={userData} progress={progress} modules={modules} onModuleClick={handleModuleClick} onAdminLogin={() => setShowAdminPin(true)} /> isAdmin={isAdmin} onModuleClick={handleModuleClick} />
+        return <MainDashboard userData={userData} progress={progress} modules={modules} onModuleClick={handleModuleClick} onAdminLogin={() => setShowAdminPin(true)} isAdmin={isAdmin} onModuleClick={handleModuleClick} />
     }
   };
 
